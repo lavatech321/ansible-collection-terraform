@@ -1,0 +1,48 @@
+---
+- name: Install PyMySQL using pip3
+  ansible.builtin.pip:
+    name: PyMySQL
+    executable: pip3
+
+- name: Install MariaDB server packages
+  yum:
+    name: mariadb-server
+    state: present
+
+- name: Ensure MariaDB is started and enabled
+  service:
+    name: mariadb
+    state: started
+    enabled: yes
+
+- name: Set MariaDB root password
+  mysql_user:
+    name: root
+    host_all: yes
+    password: "{{ mariadb_root_password }}"
+    login_unix_socket: /var/lib/mysql/mysql.sock
+    state: present
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  ignore_errors: yes
+
+- name: Remove anonymous users
+  mysql_user:
+    name: ''
+    host_all: yes
+    state: absent
+    login_user: root
+    login_password: "{{ mariadb_root_password }}"
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  ignore_errors: yes
+
+- name: Remove test database
+  community.mysql.mysql_db:
+    name: test
+    state: absent
+    login_user: root
+    login_password: "{{ mariadb_root_password }}"
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  ignore_errors: yes

@@ -1,0 +1,3 @@
+---
+mariadb_root_password: "RedHat123!"
+mariadb_bind_address: "0.0.0.0"

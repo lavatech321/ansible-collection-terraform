@@ -1,0 +1,33 @@
+---
+- name: Install packages
+  yum:
+    name:
+      - httpd
+      - firewalld
+    state: present
+
+- name: Ensure httpd is enabled and started
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop:
+    - httpd
+    - firewalld
+
+- name: Open HTTP port in firewall
+  firewalld:
+    service: http
+    permanent: yes
+    state: enabled
+    immediate: yes
+  ignore_errors: yes
+
+- name: Deploy website template
+  template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+    owner: apache
+    group: apache
+    mode: '0644'
+  notify: Restart httpd
